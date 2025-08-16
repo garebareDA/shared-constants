@@ -8,9 +8,14 @@ function parseYaml(fileName) {
     const doc = yaml.load(fs.readFileSync(fileName).toString());
     return doc;
   } catch (e) {
-    console.error("Error parsing YAML file:", fileName);
-    return e;
+    throw new Error(
+      `Failed to parse YAML file: ${fileName}. Error: ${e instanceof Error ? e.message : String(e)}`
+    );
   }
+}
+function checkFormat(data) {
+  if (!checkRootFormat(data))
+    throw new Error("Invalid YAML format");
 }
 function checkRootFormat(data) {
   return typeof data === "object" && data !== null && typeof data.format === "string" && typeof data.constants === "object" && data.constants !== null && Array.isArray(data.constants.values) && data.constants.values.length > 0 && data.constants.values.every(
@@ -20,11 +25,12 @@ function checkRootFormat(data) {
 const program = new commander.Command();
 program.name("shared-constants").description("Shared constants CLI").version("1.0.0");
 program.command("generate <name>").description("Generate shared constants").action((name) => {
-  const result = parseYaml(name);
-  if (!result)
-    return;
-  if (!checkRootFormat(result))
-    return;
-  console.log(`Generated shared constants for ${name}:`, result);
+  try {
+    const result = parseYaml(name);
+    checkFormat(result);
+    console.log(`Generated shared constants for ${name}:`, result);
+  } catch (error) {
+    console.error(error);
+  }
 });
 program.parse(process.argv);
