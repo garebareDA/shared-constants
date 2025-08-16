@@ -42,10 +42,10 @@ function checkRootFormat(data) {
   return typeof data === "object" && data !== null && typeof data.format === "string" && data.format === "shared-constants" && typeof data.constants === "object" && data.constants !== null && Array.isArray(data.constants.values) && data.constants.values.length > 0 && data.constants.values.every(
     (item) => typeof item === "object" && item !== null && typeof item.key === "string" && typeof item.value === "string" && typeof item.type === "string"
   ) && typeof data.nameSpace === "string" && typeof data.typeMode === "string" && Array.isArray(data.target) && data.target.length > 0 && data.target.every(
-    (item) => typeof item === "object" && item !== null && typeof item.language === "string" && item.language === "typescript" && typeof item.output === "string"
+    (item) => typeof item === "object" && item !== null && typeof item.language === "string" && (item.language === "typescript" || item.language === "ruby") && typeof item.output === "string"
   );
 }
-const supportedTypes = [
+const supportedTypes$1 = [
   "string",
   "number",
   "boolean",
@@ -63,6 +63,27 @@ function firstIntersectionType(inputTypes, supportedTypes2) {
   }
   throw new Error(`Not Supported Type ${inputTypes.join(", ")}`);
 }
+function generate$1(data) {
+  const namespace = data.nameSpace;
+  const constantMappings = data.constants.values.map((item) => {
+    const { key, value, type } = item;
+    const parsedType = typeParser(type);
+    const supportedType = firstIntersectionType(
+      parsedType,
+      supportedTypes$1
+    );
+    if (supportedType === "string") {
+      return `${key}: '${value}' as ${supportedType}`;
+    }
+    return `${key}: ${value} as ${supportedType}`;
+  });
+  const code = `export const ${namespace} = {
+  ${constantMappings.join(",\n  ")},
+} as const;
+`;
+  return code;
+}
+const supportedTypes = ["string", "number", "boolean"];
 function generate(data) {
   const namespace = data.nameSpace;
   const constantMappings = data.constants.values.map((item) => {
@@ -73,13 +94,13 @@ function generate(data) {
       supportedTypes
     );
     if (supportedType === "string") {
-      return `${key}: '${value}' as ${supportedType}`;
+      return `${key} = '${value}'`;
     }
-    return `${key}: ${value} as ${supportedType}`;
+    return `${key} = ${value}`;
   });
-  const code = `export const ${namespace} = {
-  ${constantMappings.join(",\n  ")},
-} as const;
+  const code = `module ${namespace}
+  ${constantMappings.join("\n  ")}
+end
 `;
   return code;
 }
@@ -98,8 +119,12 @@ program.command("generate <name>").description("Generate shared constants").acti
     const checkedFormat = checkFormat(yaml2);
     checkedFormat.target.forEach((target) => {
       if (target.language === "typescript") {
-        const typescriptCode = generate(checkedFormat);
+        const typescriptCode = generate$1(checkedFormat);
         outputToFile(target.output, typescriptCode);
+      }
+      if (target.language === "ruby") {
+        const rubyCode = generate(checkedFormat);
+        outputToFile(target.output, rubyCode);
       }
     });
   } catch (error) {
