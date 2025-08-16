@@ -2,6 +2,9 @@
 
 import { Command } from 'commander';
 
+import { parseYaml } from '../src/yamlFormat/parseYaml';
+import { checkRootFormat } from '../src/yamlFormat/formatChecker';
+
 const program = new Command();
 
 program
@@ -13,7 +16,10 @@ program
   .command('generate <name>')
   .description('Generate shared constants')
   .action((name: string) => {
-    console.log(`Generating shared constants for ${name}...`);
+    const result = parseYaml(name);
+    if (!result) return;
+    if (!checkRootFormat(result)) return;
+    console.log(`Generated shared constants for ${name}:`, result);
   });
 
 program.parse(process.argv);

@@ -1,0 +1,11 @@
+format: 'shared-constants'
+constants:
+  values:
+    - key: 'exampleKey'
+      value: 'exampleValue'
+      type: 'string'
+    - key: 'exampleKey2'
+      value: 'exampleValue2'
+      type: 'string'
+namespace: 'myNamespace'
+typeMode: 'strict'
