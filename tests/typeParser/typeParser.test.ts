@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { typeParser, isIncludedType } from '../../src/typeParser';
+import { typeParser, firstIntersectionType } from '../../src/typeParser';
 
 describe('Type Parser', () => {
   it('should parse types correctly', () => {
@@ -8,7 +8,7 @@ describe('Type Parser', () => {
   });
 
   it('should check if a type is included', () => {
-    const result = isIncludedType(['string', 'number'], ['string']);
-    expect(result).toBe(true);
+    const result = firstIntersectionType(['string', 'number'], ['string']);
+    expect(result).toBe('string');
   });
 });
