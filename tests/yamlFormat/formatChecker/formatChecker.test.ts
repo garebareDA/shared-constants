@@ -11,7 +11,7 @@ describe('Format Checker', () => {
           { key: 'exampleKey2', value: 'exampleValue2', type: 'string' },
         ],
       },
-      namespace: 'myNamespace',
+      nameSpace: 'myNamespace',
       typeMode: 'strict',
     };
     expect(() => checkFormat(validData)).not.toThrow();
@@ -31,7 +31,7 @@ describe('Format Checker', () => {
           { key: 'exampleKey2', value: 'exampleValue2', type: 'string' },
         ],
       },
-      namespace: 'myNamespace',
+      nameSpace: 'myNamespace',
       typeMode: 'strict',
       comment: 'This is a comment',
     };

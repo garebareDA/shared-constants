@@ -5,7 +5,7 @@ export function typeParser(types: string) {
 export function firstIntersectionType(
   inputTypes: ReadonlyArray<string>,
   supportedTypes: ReadonlyArray<string>
-): string | null {
+): string {
   const set = new Set(supportedTypes);
   for (const value of inputTypes) {
     if (set.has(value)) {
