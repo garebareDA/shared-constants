@@ -5,8 +5,9 @@ export function parseYaml(fileName: string) {
   try {
     const doc = yaml.load(fs.readFileSync(fileName).toString());
     return doc;
-  } catch (e) {
-    console.error('Error parsing YAML file:', fileName);
-    return e;
+  } catch (e: unknown) {
+    throw new Error(
+      `Failed to parse YAML file: ${fileName}. \n Error: ${e instanceof Error ? e.message : String(e)}`
+    );
   }
 }

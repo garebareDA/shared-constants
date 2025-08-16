@@ -11,7 +11,11 @@ type YamlFormat = {
   typeMode: string;
 };
 
-export function checkRootFormat(data: unknown): data is YamlFormat {
+export function checkFormat(data: unknown) {
+  if (!checkRootFormat(data)) throw new Error('Invalid YAML format');
+}
+
+function checkRootFormat(data: unknown): data is YamlFormat {
   return (
     typeof data === 'object' &&
     data !== null &&
