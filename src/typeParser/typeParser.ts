@@ -4,7 +4,7 @@ export function typeParser(types: string) {
 
 export function isIncludedType(
   array: ReadonlyArray<string>,
-  type: string
+  type: ReadonlyArray<string>
 ): boolean {
-  return array.includes(type);
+  return array.some((value) => type.includes(value));
 }

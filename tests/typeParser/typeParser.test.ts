@@ -8,7 +8,7 @@ describe('Type Parser', () => {
   });
 
   it('should check if a type is included', () => {
-    const result = isIncludedType(['string', 'number'], 'string');
+    const result = isIncludedType(['string', 'number'], ['string']);
     expect(result).toBe(true);
   });
 });
