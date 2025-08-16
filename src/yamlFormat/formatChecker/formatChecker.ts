@@ -1,4 +1,4 @@
-type YamlFormat = {
+export type YamlFormat = {
   format: string;
   constants: {
     values: Array<{
@@ -7,12 +7,14 @@ type YamlFormat = {
       type: string;
     }>;
   };
-  namespace: string;
+  nameSpace: string;
   typeMode: string;
 };
 
 export function checkFormat(data: unknown) {
-  if (!checkRootFormat(data)) throw new Error('Invalid YAML format');
+  const isValid = checkRootFormat(data);
+  if (!isValid) throw new Error('Invalid YAML format');
+  return data as YamlFormat;
 }
 
 function checkRootFormat(data: unknown): data is YamlFormat {
@@ -20,6 +22,7 @@ function checkRootFormat(data: unknown): data is YamlFormat {
     typeof data === 'object' &&
     data !== null &&
     typeof (data as YamlFormat).format === 'string' &&
+    (data as YamlFormat).format === 'shared-constants' &&
     typeof (data as YamlFormat).constants === 'object' &&
     (data as YamlFormat).constants !== null &&
     Array.isArray((data as YamlFormat).constants.values) &&
@@ -32,7 +35,7 @@ function checkRootFormat(data: unknown): data is YamlFormat {
         typeof item.value === 'string' &&
         typeof item.type === 'string'
     ) &&
-    typeof (data as YamlFormat).namespace === 'string' &&
+    typeof (data as YamlFormat).nameSpace === 'string' &&
     typeof (data as YamlFormat).typeMode === 'string'
   );
 }

@@ -7,5 +7,5 @@ constants:
     - key: 'exampleKey2'
       value: 'exampleValue2'
       type: 'string'
-namespace: 'myNamespace'
+nameSpace: 'myNamespace'
 typeMode: 'strict'
