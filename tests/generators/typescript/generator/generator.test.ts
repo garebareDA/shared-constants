@@ -14,13 +14,19 @@ describe('generate', () => {
         ],
       },
       typeMode: 'strict',
+      target: [
+        {
+          language: 'typescript',
+          output: './output/',
+        },
+      ],
     };
 
-    const expectedOutput = `
-const myNamespace = {
-  exampleKey: 'exampleValue' as const,
-  exampleKey2: 'exampleValue2' as const
-} as const`;
+    const expectedOutput = `export const myNamespace = {
+  exampleKey: 'exampleValue' as string,
+  exampleKey2: 'exampleValue2' as string,
+} as const;
+`;
 
     expect(generate(input)).toEqual(expectedOutput);
   });

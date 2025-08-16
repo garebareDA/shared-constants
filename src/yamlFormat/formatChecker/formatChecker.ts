@@ -9,6 +9,10 @@ export type YamlFormat = {
   };
   nameSpace: string;
   typeMode: string;
+  target: Array<{
+    language: 'typescript';
+    output: string;
+  }>;
 };
 
 export function checkFormat(data: unknown) {
@@ -36,6 +40,16 @@ function checkRootFormat(data: unknown): data is YamlFormat {
         typeof item.type === 'string'
     ) &&
     typeof (data as YamlFormat).nameSpace === 'string' &&
-    typeof (data as YamlFormat).typeMode === 'string'
+    typeof (data as YamlFormat).typeMode === 'string' &&
+    Array.isArray((data as YamlFormat).target) &&
+    (data as YamlFormat).target.length > 0 &&
+    (data as YamlFormat).target.every(
+      (item) =>
+        typeof item === 'object' &&
+        item !== null &&
+        typeof item.language === 'string' &&
+        item.language === 'typescript' &&
+        typeof item.output === 'string'
+    )
   );
 }

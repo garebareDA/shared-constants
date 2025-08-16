@@ -13,6 +13,12 @@ describe('Format Checker', () => {
       },
       nameSpace: 'myNamespace',
       typeMode: 'strict',
+      target: [
+        {
+          language: 'typescript',
+          output: './output/output.ts',
+        },
+      ],
     };
     expect(() => checkFormat(validData)).not.toThrow();
   });
@@ -33,6 +39,12 @@ describe('Format Checker', () => {
       },
       nameSpace: 'myNamespace',
       typeMode: 'strict',
+      target: [
+        {
+          language: 'typescript',
+          output: './output/output.ts',
+        },
+      ],
       comment: 'This is a comment',
     };
     expect(() => checkFormat(unknownFormatData)).not.toThrowError();

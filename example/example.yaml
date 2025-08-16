@@ -9,3 +9,6 @@ constants:
       type: 'string'
 nameSpace: 'myNamespace'
 typeMode: 'strict'
+target:
+  - language: 'typescript'
+    output: './output/output.ts'

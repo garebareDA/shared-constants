@@ -3,6 +3,24 @@
 const commander = require("commander");
 const fs = require("fs");
 const yaml = require("js-yaml");
+const path = require("path");
+function _interopNamespaceDefault(e) {
+  const n = Object.create(null, { [Symbol.toStringTag]: { value: "Module" } });
+  if (e) {
+    for (const k in e) {
+      if (k !== "default") {
+        const d = Object.getOwnPropertyDescriptor(e, k);
+        Object.defineProperty(n, k, d.get ? d : {
+          enumerable: true,
+          get: () => e[k]
+        });
+      }
+    }
+  }
+  n.default = e;
+  return Object.freeze(n);
+}
+const fs__namespace = /* @__PURE__ */ _interopNamespaceDefault(fs);
 function parseYaml(fileName) {
   try {
     const doc = yaml.load(fs.readFileSync(fileName).toString());
@@ -23,7 +41,9 @@ function checkFormat(data) {
 function checkRootFormat(data) {
   return typeof data === "object" && data !== null && typeof data.format === "string" && data.format === "shared-constants" && typeof data.constants === "object" && data.constants !== null && Array.isArray(data.constants.values) && data.constants.values.length > 0 && data.constants.values.every(
     (item) => typeof item === "object" && item !== null && typeof item.key === "string" && typeof item.value === "string" && typeof item.type === "string"
-  ) && typeof data.nameSpace === "string" && typeof data.typeMode === "string";
+  ) && typeof data.nameSpace === "string" && typeof data.typeMode === "string" && Array.isArray(data.target) && data.target.length > 0 && data.target.every(
+    (item) => typeof item === "object" && item !== null && typeof item.language === "string" && item.language === "typescript" && typeof item.output === "string"
+  );
 }
 const supportedTypes = [
   "string",
@@ -52,24 +72,36 @@ function generate(data) {
       parsedType,
       supportedTypes
     );
-    if (supportedType === "bigint" || supportedType === "number") {
-      return `${key}:${value} as ${supportedType}`;
+    if (supportedType === "string") {
+      return `${key}: '${value}' as ${supportedType}`;
     }
-    return `${key}:'${value}' as ${supportedType}`;
+    return `${key}: ${value} as ${supportedType}`;
   });
-  const code = `
-const ${namespace} = {
-  ${constantMappings.join(",\n  ")}
-} as const`;
+  const code = `export const ${namespace} = {
+  ${constantMappings.join(",\n  ")},
+} as const;
+`;
   return code;
+}
+function outputToFile(filePath, content) {
+  const dir = path.dirname(filePath);
+  if (!fs__namespace.existsSync(dir)) {
+    fs__namespace.mkdirSync(dir, { recursive: true });
+  }
+  fs__namespace.writeFileSync(filePath, content);
 }
 const program = new commander.Command();
 program.name("shared-constants").description("Shared constants CLI").version("1.0.0");
 program.command("generate <name>").description("Generate shared constants").action((name) => {
   try {
-    const result = parseYaml(name);
-    const checkedFormat = checkFormat(result);
-    console.log(generate(checkedFormat));
+    const yaml2 = parseYaml(name);
+    const checkedFormat = checkFormat(yaml2);
+    checkedFormat.target.forEach((target) => {
+      if (target.language === "typescript") {
+        const typescriptCode = generate(checkedFormat);
+        outputToFile(target.output, typescriptCode);
+      }
+    });
   } catch (error) {
     console.error(error);
   }
