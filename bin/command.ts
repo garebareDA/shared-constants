@@ -5,6 +5,7 @@ import { Command } from 'commander';
 import { parseYaml } from '../src/yamlFormat/parseYaml';
 import { checkFormat } from '../src/yamlFormat/formatChecker';
 import * as typescript from '../src/generators/typescript';
+import { outputToFile } from '../src/fileOutput';
 
 const program = new Command();
 
@@ -18,10 +19,15 @@ program
   .description('Generate shared constants')
   .action((name: string) => {
     try {
-      const result = parseYaml(name);
-      const checkedFormat = checkFormat(result);
+      const yaml = parseYaml(name);
+      const checkedFormat = checkFormat(yaml);
 
-      console.log(typescript.generate(checkedFormat));
+      checkedFormat.target.forEach((target) => {
+        if (target.language === 'typescript') {
+          const typescriptCode = typescript.generate(checkedFormat);
+          outputToFile(target.output, typescriptCode);
+        }
+      });
     } catch (error) {
       console.error(error);
     }

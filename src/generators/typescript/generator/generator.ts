@@ -12,17 +12,17 @@ export function generate(data: YamlFormat) {
       supportedTypes
     ) as SupportedType;
 
-    if (supportedType === 'bigint' || supportedType === 'number') {
-      return `${key}:${value} as ${supportedType}`;
+    if (supportedType === 'string') {
+      return `${key}: '${value}' as ${supportedType}`;
     }
 
-    return `${key}:'${value}' as ${supportedType}`;
+    return `${key}: ${value} as ${supportedType}`;
   });
 
-  const code = `
-const ${namespace} = {
-  ${constantMappings.join(',\n  ')}
-} as const`;
+  const code = `export const ${namespace} = {
+  ${constantMappings.join(',\n  ')},
+} as const;
+`;
 
   return code;
 }
