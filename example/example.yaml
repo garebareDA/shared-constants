@@ -12,3 +12,5 @@ typeMode: 'strict'
 target:
   - language: 'typescript'
     output: './output/output.ts'
+  - language: 'ruby'
+    output: './output/output.rb'
