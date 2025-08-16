@@ -19,6 +19,9 @@ export default defineConfig(({ command }) => {
             banner: '#!/usr/bin/env node',
           },
         },
+        ssr: {
+          noExternal: ['fs', 'js-yaml'],
+        },
       },
     };
   }
