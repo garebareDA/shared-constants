@@ -42,10 +42,10 @@ function checkRootFormat(data) {
   return typeof data === "object" && data !== null && typeof data.format === "string" && data.format === "shared-constants" && typeof data.constants === "object" && data.constants !== null && Array.isArray(data.constants.values) && data.constants.values.length > 0 && data.constants.values.every(
     (item) => typeof item === "object" && item !== null && typeof item.key === "string" && typeof item.value === "string" && typeof item.type === "string"
   ) && typeof data.nameSpace === "string" && Array.isArray(data.target) && data.target.length > 0 && data.target.every(
-    (item) => typeof item === "object" && item !== null && typeof item.language === "string" && (item.language === "typescript" || item.language === "ruby" || item.language === "python") && typeof item.output === "string"
+    (item) => typeof item === "object" && item !== null && typeof item.language === "string" && (item.language === "typescript" || item.language === "ruby" || item.language === "python" || item.language === "go") && typeof item.output === "string"
   );
 }
-const supportedTypes$2 = [
+const supportedTypes$3 = [
   "string",
   "number",
   "boolean",
@@ -63,14 +63,14 @@ function firstIntersectionType(inputTypes, supportedTypes2) {
   }
   throw new Error(`Not Supported Type ${inputTypes.join(", ")}`);
 }
-function generate$2(data) {
+function generate$3(data) {
   const namespace = data.nameSpace;
   const constantMappings = data.constants.values.map((item) => {
     const { key, value, type } = item;
     const parsedType = typeParser(type);
     const supportedType = firstIntersectionType(
       parsedType,
-      supportedTypes$2
+      supportedTypes$3
     );
     if (supportedType === "string") {
       return `${key}: '${value}' as ${supportedType}`;
@@ -83,15 +83,15 @@ function generate$2(data) {
 `;
   return code;
 }
-const supportedTypes$1 = ["string", "number", "boolean"];
-function generate$1(data) {
+const supportedTypes$2 = ["string", "number", "boolean"];
+function generate$2(data) {
   const namespace = data.nameSpace;
   const constantMappings = data.constants.values.map((item) => {
     const { key, value, type } = item;
     const parsedType = typeParser(type);
     const supportedType = firstIntersectionType(
       parsedType,
-      supportedTypes$1
+      supportedTypes$2
     );
     if (supportedType === "string") {
       return `${key} = '${value}'`;
@@ -104,14 +104,14 @@ end
 `;
   return code;
 }
-const supportedTypes = ["string", "number", "boolean"];
-function generate(data) {
+const supportedTypes$1 = ["string", "number", "boolean"];
+function generate$1(data) {
   const constantMappings = data.constants.values.map((item) => {
     const { key, value, type } = item;
     const parsedType = typeParser(type);
     const supportedType = firstIntersectionType(
       parsedType,
-      supportedTypes
+      supportedTypes$1
     );
     if (supportedType === "string") {
       return `${key} = "${value}"`;
@@ -125,6 +125,47 @@ function generate(data) {
 __all__ = ["${keyValue.join(
     '", "'
   )}"]`;
+  return code;
+}
+const supportedTypes = [
+  "string",
+  "int",
+  "int8",
+  "int16",
+  "int32",
+  "int64",
+  "uint",
+  "uint8",
+  "uint16",
+  "uint32",
+  "uint64",
+  "float32",
+  "float64",
+  "bool",
+  "byte",
+  "rune"
+];
+function generate(data) {
+  const constantMappings = data.constants.values.map((item) => {
+    const { key, value, type } = item;
+    const parsedType = typeParser(type);
+    const supportedType = firstIntersectionType(
+      parsedType,
+      supportedTypes
+    );
+    if (supportedType === "string") {
+      return `${key} string = "${value}"`;
+    }
+    if (supportedType === "rune") {
+      return `${key} rune = '${value}'`;
+    }
+    return `${key} ${supportedType} = ${value}`;
+  });
+  const code = `package ${data.nameSpace}
+const (
+  ${constantMappings.join("\n  ")}
+)
+  `;
   return code;
 }
 function outputToFile(filePath, content) {
@@ -143,16 +184,20 @@ program.command("generate <name>").description("Generate shared constants").acti
     const checkedFormat = checkFormat(yaml2);
     checkedFormat.target.forEach((target) => {
       if (target.language === "typescript") {
-        const typescriptCode = generate$2(checkedFormat);
+        const typescriptCode = generate$3(checkedFormat);
         outputToFile(target.output, typescriptCode);
       }
       if (target.language === "ruby") {
-        const rubyCode = generate$1(checkedFormat);
+        const rubyCode = generate$2(checkedFormat);
         outputToFile(target.output, rubyCode);
       }
       if (target.language === "python") {
-        const pythonCode = generate(checkedFormat);
+        const pythonCode = generate$1(checkedFormat);
         outputToFile(target.output, pythonCode);
+      }
+      if (target.language === "go") {
+        const goCode = generate(checkedFormat);
+        outputToFile(target.output, goCode);
       }
     });
   } catch (error) {

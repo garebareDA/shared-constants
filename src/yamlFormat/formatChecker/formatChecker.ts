@@ -9,7 +9,7 @@ export type YamlFormat = {
   };
   nameSpace: string;
   target: Array<{
-    language: 'typescript' | 'ruby' | 'python';
+    language: 'typescript' | 'ruby' | 'python' | 'go';
     output: string;
   }>;
 };
@@ -48,7 +48,8 @@ function checkRootFormat(data: unknown): data is YamlFormat {
         typeof item.language === 'string' &&
         (item.language === 'typescript' ||
           item.language === 'ruby' ||
-          item.language === 'python') &&
+          item.language === 'python' ||
+          item.language === 'go') &&
         typeof item.output === 'string'
     )
   );
