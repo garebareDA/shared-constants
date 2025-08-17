@@ -41,11 +41,11 @@ function checkFormat(data) {
 function checkRootFormat(data) {
   return typeof data === "object" && data !== null && typeof data.format === "string" && data.format === "shared-constants" && typeof data.constants === "object" && data.constants !== null && Array.isArray(data.constants.values) && data.constants.values.length > 0 && data.constants.values.every(
     (item) => typeof item === "object" && item !== null && typeof item.key === "string" && typeof item.value === "string" && typeof item.type === "string"
-  ) && typeof data.nameSpace === "string" && typeof data.typeMode === "string" && Array.isArray(data.target) && data.target.length > 0 && data.target.every(
-    (item) => typeof item === "object" && item !== null && typeof item.language === "string" && (item.language === "typescript" || item.language === "ruby") && typeof item.output === "string"
+  ) && typeof data.nameSpace === "string" && Array.isArray(data.target) && data.target.length > 0 && data.target.every(
+    (item) => typeof item === "object" && item !== null && typeof item.language === "string" && (item.language === "typescript" || item.language === "ruby" || item.language === "python") && typeof item.output === "string"
   );
 }
-const supportedTypes$1 = [
+const supportedTypes$2 = [
   "string",
   "number",
   "boolean",
@@ -63,14 +63,14 @@ function firstIntersectionType(inputTypes, supportedTypes2) {
   }
   throw new Error(`Not Supported Type ${inputTypes.join(", ")}`);
 }
-function generate$1(data) {
+function generate$2(data) {
   const namespace = data.nameSpace;
   const constantMappings = data.constants.values.map((item) => {
     const { key, value, type } = item;
     const parsedType = typeParser(type);
     const supportedType = firstIntersectionType(
       parsedType,
-      supportedTypes$1
+      supportedTypes$2
     );
     if (supportedType === "string") {
       return `${key}: '${value}' as ${supportedType}`;
@@ -83,15 +83,15 @@ function generate$1(data) {
 `;
   return code;
 }
-const supportedTypes = ["string", "number", "boolean"];
-function generate(data) {
+const supportedTypes$1 = ["string", "number", "boolean"];
+function generate$1(data) {
   const namespace = data.nameSpace;
   const constantMappings = data.constants.values.map((item) => {
     const { key, value, type } = item;
     const parsedType = typeParser(type);
     const supportedType = firstIntersectionType(
       parsedType,
-      supportedTypes
+      supportedTypes$1
     );
     if (supportedType === "string") {
       return `${key} = '${value}'`;
@@ -104,6 +104,29 @@ end
 `;
   return code;
 }
+const supportedTypes = ["string", "number", "boolean"];
+function generate(data) {
+  const constantMappings = data.constants.values.map((item) => {
+    const { key, value, type } = item;
+    const parsedType = typeParser(type);
+    const supportedType = firstIntersectionType(
+      parsedType,
+      supportedTypes
+    );
+    if (supportedType === "string") {
+      return `${key} = "${value}"`;
+    }
+    return `${key} = ${value}`;
+  });
+  const keyValue = data.constants.values.map((item) => {
+    return item.key;
+  });
+  const code = `${constantMappings.join("\n")}
+__all__ = ["${keyValue.join(
+    '", "'
+  )}"]`;
+  return code;
+}
 function outputToFile(filePath, content) {
   const dir = path.dirname(filePath);
   if (!fs__namespace.existsSync(dir)) {
@@ -114,21 +137,27 @@ function outputToFile(filePath, content) {
 const program = new commander.Command();
 program.name("shared-constants").description("Shared constants CLI").version("1.0.0");
 program.command("generate <name>").description("Generate shared constants").action((name) => {
+  console.log("Generating shared constants...");
   try {
     const yaml2 = parseYaml(name);
     const checkedFormat = checkFormat(yaml2);
     checkedFormat.target.forEach((target) => {
       if (target.language === "typescript") {
-        const typescriptCode = generate$1(checkedFormat);
+        const typescriptCode = generate$2(checkedFormat);
         outputToFile(target.output, typescriptCode);
       }
       if (target.language === "ruby") {
-        const rubyCode = generate(checkedFormat);
+        const rubyCode = generate$1(checkedFormat);
         outputToFile(target.output, rubyCode);
+      }
+      if (target.language === "python") {
+        const pythonCode = generate(checkedFormat);
+        outputToFile(target.output, pythonCode);
       }
     });
   } catch (error) {
     console.error(error);
   }
+  console.log("Shared constants generated successfully");
 });
 program.parse(process.argv);

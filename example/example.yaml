@@ -8,9 +8,10 @@ constants:
       value: 'exampleValue2'
       type: 'string'
 nameSpace: 'myNamespace'
-typeMode: 'strict'
 target:
   - language: 'typescript'
     output: './output/output.ts'
   - language: 'ruby'
     output: './output/output.rb'
+  - language: 'python'
+    output: './output/output.py'
