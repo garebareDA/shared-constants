@@ -7,6 +7,18 @@ constants:
     - key: 'exampleKey2'
       value: 'exampleValue2'
       type: 'string'
+    - key: 'exampleKey3'
+      value: 123
+      type: 'int|number'
+    - key: 'exampleKey4'
+      value: true
+      type: 'bool|boolean'
+    - key: 'exampleKey5'
+      value: 'こんにちは'
+      type: 'string'
+    - key: 'exampleKey6'
+      value: '🐶'
+      type: 'string'
 target:
   - language: 'typescript'
     output: './output/output.ts'

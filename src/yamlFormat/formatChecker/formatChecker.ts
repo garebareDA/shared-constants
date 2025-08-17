@@ -35,7 +35,9 @@ function checkRootFormat(data: unknown): data is YamlFormat {
         typeof item === 'object' &&
         item !== null &&
         typeof item.key === 'string' &&
-        typeof item.value === 'string' &&
+        (typeof item.value === 'string' ||
+          typeof item.value === 'number' ||
+          typeof item.value === 'boolean') &&
         typeof item.type === 'string'
     ) &&
     Array.isArray((data as YamlFormat).target) &&
