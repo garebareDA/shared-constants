@@ -6,6 +6,7 @@ import { parseYaml } from '../src/yamlFormat/parseYaml';
 import { checkFormat } from '../src/yamlFormat/formatChecker';
 import * as typescript from '../src/generators/typescript';
 import * as ruby from '../src/generators/ruby';
+import * as python from '../src/generators/python';
 import { outputToFile } from '../src/fileOutput';
 
 const program = new Command();
@@ -19,6 +20,7 @@ program
   .command('generate <name>')
   .description('Generate shared constants')
   .action((name: string) => {
+    console.log('Generating shared constants...');
     try {
       const yaml = parseYaml(name);
       const checkedFormat = checkFormat(yaml);
@@ -33,10 +35,17 @@ program
           const rubyCode = ruby.generate(checkedFormat);
           outputToFile(target.output, rubyCode);
         }
+
+        if (target.language === 'python') {
+          const pythonCode = python.generate(checkedFormat);
+          outputToFile(target.output, pythonCode);
+        }
       });
     } catch (error) {
       console.error(error);
     }
+
+    console.log('Shared constants generated successfully');
   });
 
 program.parse(process.argv);
