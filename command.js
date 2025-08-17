@@ -3,6 +3,7 @@
 const commander = require("commander");
 const fs = require("fs");
 const yaml = require("js-yaml");
+const changeCase = require("change-case");
 const path = require("path");
 function _interopNamespaceDefault(e) {
   const n = Object.create(null, { [Symbol.toStringTag]: { value: "Module" } });
@@ -21,6 +22,7 @@ function _interopNamespaceDefault(e) {
   return Object.freeze(n);
 }
 const fs__namespace = /* @__PURE__ */ _interopNamespaceDefault(fs);
+const changeCase__namespace = /* @__PURE__ */ _interopNamespaceDefault(changeCase);
 function parseYaml(fileName) {
   try {
     const doc = yaml.load(fs.readFileSync(fileName).toString());
@@ -66,7 +68,8 @@ function firstIntersectionType(inputTypes, supportedTypes2) {
 function generate$3(data) {
   const namespace = data.nameSpace;
   const constantMappings = data.constants.values.map((item) => {
-    const { key, value, type } = item;
+    const { key: originalKey, value, type } = item;
+    const key = changeCase__namespace.constantCase(originalKey);
     const parsedType = typeParser(type);
     const supportedType = firstIntersectionType(
       parsedType,
@@ -87,7 +90,8 @@ const supportedTypes$2 = ["string", "number", "boolean"];
 function generate$2(data) {
   const namespace = data.nameSpace;
   const constantMappings = data.constants.values.map((item) => {
-    const { key, value, type } = item;
+    const { key: originalKey, value, type } = item;
+    const key = changeCase__namespace.constantCase(originalKey);
     const parsedType = typeParser(type);
     const supportedType = firstIntersectionType(
       parsedType,
@@ -107,7 +111,8 @@ end
 const supportedTypes$1 = ["string", "number", "boolean"];
 function generate$1(data) {
   const constantMappings = data.constants.values.map((item) => {
-    const { key, value, type } = item;
+    const { key: originalKey, value, type } = item;
+    const key = changeCase__namespace.constantCase(originalKey);
     const parsedType = typeParser(type);
     const supportedType = firstIntersectionType(
       parsedType,
@@ -147,7 +152,8 @@ const supportedTypes = [
 ];
 function generate(data) {
   const constantMappings = data.constants.values.map((item) => {
-    const { key, value, type } = item;
+    const { key: originalKey, value, type } = item;
+    const key = changeCase__namespace.pascalCase(originalKey);
     const parsedType = typeParser(type);
     const supportedType = firstIntersectionType(
       parsedType,
@@ -165,7 +171,7 @@ function generate(data) {
 const (
   ${constantMappings.join("\n  ")}
 )
-  `;
+`;
   return code;
 }
 function outputToFile(filePath, content) {
