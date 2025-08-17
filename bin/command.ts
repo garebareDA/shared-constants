@@ -52,6 +52,7 @@ program
       });
     } catch (error) {
       console.error(error);
+      return;
     }
 
     console.log('Shared constants generated successfully');
