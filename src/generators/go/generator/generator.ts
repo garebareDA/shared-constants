@@ -1,10 +1,13 @@
+import * as changeCase from 'change-case';
+
 import { YamlFormat } from '../../../yamlFormat/formatChecker';
 import { firstIntersectionType, typeParser } from '../../../typeParser';
 import { supportedTypes, SupportedType } from '../type/type';
 
-export function generate(data: YamlFormat) {
+export function generate(data: YamlFormat, nameSpace: string) {
   const constantMappings = data.constants.values.map((item) => {
-    const { key, value, type } = item;
+    const { key: originalKey, value, type } = item;
+    const key = changeCase.pascalCase(originalKey);
     const parsedType = typeParser(type);
     const supportedType = firstIntersectionType(
       parsedType,
@@ -22,10 +25,10 @@ export function generate(data: YamlFormat) {
     return `${key} ${supportedType} = ${value}`;
   });
 
-  const code = `package ${data.nameSpace}
+  const code = `package ${nameSpace}
 const (
   ${constantMappings.join('\n  ')}
 )
-  `;
+`;
   return code;
 }

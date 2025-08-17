@@ -28,12 +28,15 @@ program
 
       checkedFormat.target.forEach((target) => {
         if (target.language === 'typescript') {
-          const typescriptCode = typescript.generate(checkedFormat);
+          const typescriptCode = typescript.generate(
+            checkedFormat,
+            target.nameSpace
+          );
           outputToFile(target.output, typescriptCode);
         }
 
         if (target.language === 'ruby') {
-          const rubyCode = ruby.generate(checkedFormat);
+          const rubyCode = ruby.generate(checkedFormat, target.nameSpace);
           outputToFile(target.output, rubyCode);
         }
 
@@ -43,7 +46,7 @@ program
         }
 
         if (target.language === 'go') {
-          const goCode = go.generate(checkedFormat);
+          const goCode = go.generate(checkedFormat, target.nameSpace);
           outputToFile(target.output, goCode);
         }
       });
