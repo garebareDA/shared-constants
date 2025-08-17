@@ -42,7 +42,7 @@ function checkFormat(data) {
 }
 function checkRootFormat(data) {
   return typeof data === "object" && data !== null && typeof data.format === "string" && data.format === "shared-constants" && typeof data.constants === "object" && data.constants !== null && Array.isArray(data.constants.values) && data.constants.values.length > 0 && data.constants.values.every(
-    (item) => typeof item === "object" && item !== null && typeof item.key === "string" && typeof item.value === "string" && typeof item.type === "string"
+    (item) => typeof item === "object" && item !== null && typeof item.key === "string" && (typeof item.value === "string" || typeof item.value === "number" || typeof item.value === "boolean") && typeof item.type === "string"
   ) && Array.isArray(data.target) && data.target.length > 0 && data.target.every(
     (item) => typeof item === "object" && item !== null && typeof item.language === "string" && (item.language === "typescript" || item.language === "ruby" || item.language === "python" || item.language === "go") && typeof item.output === "string" && typeof item.nameSpace === "string"
   );
@@ -119,10 +119,13 @@ function generate$1(data) {
     if (supportedType === "string") {
       return `${key} = "${value}"`;
     }
+    if (supportedType === "boolean") {
+      return `${key} = ${changeCase__namespace.capitalCase(value.toString())}`;
+    }
     return `${key} = ${value}`;
   });
   const keyValue = data.constants.values.map((item) => {
-    return item.key;
+    return changeCase__namespace.constantCase(item.key);
   });
   const code = `${constantMappings.join("\n")}
 __all__ = ["${keyValue.join(
