@@ -67,17 +67,24 @@ function firstIntersectionType(inputTypes, supportedTypes2) {
 }
 function generate$3(data, nameSpace) {
   const constantMappings = data.constants.values.map((item) => {
-    const { key: originalKey, value, type } = item;
-    const key = changeCase__namespace.constantCase(originalKey);
-    const parsedType = typeParser(type);
-    const supportedType = firstIntersectionType(
-      parsedType,
-      supportedTypes$3
-    );
-    if (supportedType === "string") {
-      return `${key}: '${value}' as ${supportedType}`;
+    try {
+      const { key: originalKey, value, type } = item;
+      const key = changeCase__namespace.constantCase(originalKey);
+      const parsedType = typeParser(type);
+      const supportedType = firstIntersectionType(
+        parsedType,
+        supportedTypes$3
+      );
+      if (supportedType === "string") {
+        return `${key}: '${value}' as ${supportedType}`;
+      }
+      return `${key}: ${value} as ${supportedType}`;
+    } catch (error) {
+      throw new Error(
+        `Error processing item ${JSON.stringify(item)}:
+ ${error}`
+      );
     }
-    return `${key}: ${value} as ${supportedType}`;
   });
   const code = `export const ${nameSpace} = {
   ${constantMappings.join(",\n  ")},
@@ -88,17 +95,24 @@ function generate$3(data, nameSpace) {
 const supportedTypes$2 = ["string", "number", "boolean"];
 function generate$2(data, nameSpace) {
   const constantMappings = data.constants.values.map((item) => {
-    const { key: originalKey, value, type } = item;
-    const key = changeCase__namespace.constantCase(originalKey);
-    const parsedType = typeParser(type);
-    const supportedType = firstIntersectionType(
-      parsedType,
-      supportedTypes$2
-    );
-    if (supportedType === "string") {
-      return `${key} = '${value}'`;
+    try {
+      const { key: originalKey, value, type } = item;
+      const key = changeCase__namespace.constantCase(originalKey);
+      const parsedType = typeParser(type);
+      const supportedType = firstIntersectionType(
+        parsedType,
+        supportedTypes$2
+      );
+      if (supportedType === "string") {
+        return `${key} = '${value}'`;
+      }
+      return `${key} = ${value}`;
+    } catch (error) {
+      throw new Error(
+        `Error processing item ${JSON.stringify(item)}:
+ ${error}`
+      );
     }
-    return `${key} = ${value}`;
   });
   const code = `module ${nameSpace}
   ${constantMappings.join("\n  ")}
@@ -109,20 +123,27 @@ end
 const supportedTypes$1 = ["string", "number", "boolean"];
 function generate$1(data) {
   const constantMappings = data.constants.values.map((item) => {
-    const { key: originalKey, value, type } = item;
-    const key = changeCase__namespace.constantCase(originalKey);
-    const parsedType = typeParser(type);
-    const supportedType = firstIntersectionType(
-      parsedType,
-      supportedTypes$1
-    );
-    if (supportedType === "string") {
-      return `${key} = "${value}"`;
+    try {
+      const { key: originalKey, value, type } = item;
+      const key = changeCase__namespace.constantCase(originalKey);
+      const parsedType = typeParser(type);
+      const supportedType = firstIntersectionType(
+        parsedType,
+        supportedTypes$1
+      );
+      if (supportedType === "string") {
+        return `${key} = "${value}"`;
+      }
+      if (supportedType === "boolean") {
+        return `${key} = ${changeCase__namespace.capitalCase(value.toString())}`;
+      }
+      return `${key} = ${value}`;
+    } catch (error) {
+      throw new Error(
+        `Error processing item ${JSON.stringify(item)}:
+ ${error}`
+      );
     }
-    if (supportedType === "boolean") {
-      return `${key} = ${changeCase__namespace.capitalCase(value.toString())}`;
-    }
-    return `${key} = ${value}`;
   });
   const keyValue = data.constants.values.map((item) => {
     return changeCase__namespace.constantCase(item.key);
@@ -153,20 +174,27 @@ const supportedTypes = [
 ];
 function generate(data, nameSpace) {
   const constantMappings = data.constants.values.map((item) => {
-    const { key: originalKey, value, type } = item;
-    const key = changeCase__namespace.pascalCase(originalKey);
-    const parsedType = typeParser(type);
-    const supportedType = firstIntersectionType(
-      parsedType,
-      supportedTypes
-    );
-    if (supportedType === "string") {
-      return `${key} string = "${value}"`;
+    try {
+      const { key: originalKey, value, type } = item;
+      const key = changeCase__namespace.pascalCase(originalKey);
+      const parsedType = typeParser(type);
+      const supportedType = firstIntersectionType(
+        parsedType,
+        supportedTypes
+      );
+      if (supportedType === "string") {
+        return `${key} string = "${value}"`;
+      }
+      if (supportedType === "rune") {
+        return `${key} rune = '${value}'`;
+      }
+      return `${key} ${supportedType} = ${value}`;
+    } catch (error) {
+      throw new Error(
+        `Error processing item ${JSON.stringify(item)}:
+ ${error}`
+      );
     }
-    if (supportedType === "rune") {
-      return `${key} rune = '${value}'`;
-    }
-    return `${key} ${supportedType} = ${value}`;
   });
   const code = `package ${nameSpace}
 const (
@@ -212,6 +240,7 @@ program.command("generate <name>").description("Generate shared constants").acti
     });
   } catch (error) {
     console.error(error);
+    return;
   }
   console.log("Shared constants generated successfully");
 });

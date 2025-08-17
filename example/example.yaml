@@ -6,7 +6,7 @@ constants:
       type: 'string'
     - key: 'exampleKey2'
       value: 'exampleValue2'
-      type: 'string'
+      type: 'stringaa'
     - key: 'exampleKey3'
       value: 123
       type: 'int|number'
