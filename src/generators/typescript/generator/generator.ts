@@ -4,8 +4,7 @@ import { YamlFormat } from '../../../yamlFormat/formatChecker';
 import { firstIntersectionType, typeParser } from '../../../typeParser';
 import { supportedTypes, SupportedType } from '../type/type';
 
-export function generate(data: YamlFormat) {
-  const namespace = data.nameSpace;
+export function generate(data: YamlFormat, nameSpace: string) {
   const constantMappings = data.constants.values.map((item) => {
     const { key: originalKey, value, type } = item;
     const key = changeCase.constantCase(originalKey);
@@ -23,7 +22,7 @@ export function generate(data: YamlFormat) {
     return `${key}: ${value} as ${supportedType}`;
   });
 
-  const code = `export const ${namespace} = {
+  const code = `export const ${nameSpace} = {
   ${constantMappings.join(',\n  ')},
 } as const;
 `;
