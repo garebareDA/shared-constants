@@ -18,11 +18,15 @@ export function generate(data: YamlFormat) {
       return `${key} = "${value}"`;
     }
 
+    if (supportedType === 'boolean') {
+      return `${key} = ${changeCase.capitalCase(value.toString())}`;
+    }
+
     return `${key} = ${value}`;
   });
 
   const keyValue = data.constants.values.map((item) => {
-    return item.key;
+    return changeCase.constantCase(item.key);
   });
 
   const code = `${constantMappings.join('\n')}\n__all__ = ["${keyValue.join(
