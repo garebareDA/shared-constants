@@ -7,6 +7,7 @@ import { checkFormat } from '../src/yamlFormat/formatChecker';
 import * as typescript from '../src/generators/typescript';
 import * as ruby from '../src/generators/ruby';
 import * as python from '../src/generators/python';
+import * as go from '../src/generators/go';
 import { outputToFile } from '../src/fileOutput';
 
 const program = new Command();
@@ -39,6 +40,11 @@ program
         if (target.language === 'python') {
           const pythonCode = python.generate(checkedFormat);
           outputToFile(target.output, pythonCode);
+        }
+
+        if (target.language === 'go') {
+          const goCode = go.generate(checkedFormat);
+          outputToFile(target.output, goCode);
         }
       });
     } catch (error) {
