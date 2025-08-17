@@ -7,10 +7,10 @@ export type YamlFormat = {
       type: string;
     }>;
   };
-  nameSpace: string;
   target: Array<{
     language: 'typescript' | 'ruby' | 'python' | 'go';
     output: string;
+    nameSpace: string;
   }>;
 };
 
@@ -38,7 +38,6 @@ function checkRootFormat(data: unknown): data is YamlFormat {
         typeof item.value === 'string' &&
         typeof item.type === 'string'
     ) &&
-    typeof (data as YamlFormat).nameSpace === 'string' &&
     Array.isArray((data as YamlFormat).target) &&
     (data as YamlFormat).target.length > 0 &&
     (data as YamlFormat).target.every(
@@ -50,7 +49,8 @@ function checkRootFormat(data: unknown): data is YamlFormat {
           item.language === 'ruby' ||
           item.language === 'python' ||
           item.language === 'go') &&
-        typeof item.output === 'string'
+        typeof item.output === 'string' &&
+        typeof item.nameSpace === 'string'
     )
   );
 }

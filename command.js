@@ -3,6 +3,7 @@
 const commander = require("commander");
 const fs = require("fs");
 const yaml = require("js-yaml");
+const changeCase = require("change-case");
 const path = require("path");
 function _interopNamespaceDefault(e) {
   const n = Object.create(null, { [Symbol.toStringTag]: { value: "Module" } });
@@ -21,6 +22,7 @@ function _interopNamespaceDefault(e) {
   return Object.freeze(n);
 }
 const fs__namespace = /* @__PURE__ */ _interopNamespaceDefault(fs);
+const changeCase__namespace = /* @__PURE__ */ _interopNamespaceDefault(changeCase);
 function parseYaml(fileName) {
   try {
     const doc = yaml.load(fs.readFileSync(fileName).toString());
@@ -41,8 +43,8 @@ function checkFormat(data) {
 function checkRootFormat(data) {
   return typeof data === "object" && data !== null && typeof data.format === "string" && data.format === "shared-constants" && typeof data.constants === "object" && data.constants !== null && Array.isArray(data.constants.values) && data.constants.values.length > 0 && data.constants.values.every(
     (item) => typeof item === "object" && item !== null && typeof item.key === "string" && typeof item.value === "string" && typeof item.type === "string"
-  ) && typeof data.nameSpace === "string" && Array.isArray(data.target) && data.target.length > 0 && data.target.every(
-    (item) => typeof item === "object" && item !== null && typeof item.language === "string" && (item.language === "typescript" || item.language === "ruby" || item.language === "python" || item.language === "go") && typeof item.output === "string"
+  ) && Array.isArray(data.target) && data.target.length > 0 && data.target.every(
+    (item) => typeof item === "object" && item !== null && typeof item.language === "string" && (item.language === "typescript" || item.language === "ruby" || item.language === "python" || item.language === "go") && typeof item.output === "string" && typeof item.nameSpace === "string"
   );
 }
 const supportedTypes$3 = [
@@ -63,10 +65,10 @@ function firstIntersectionType(inputTypes, supportedTypes2) {
   }
   throw new Error(`Not Supported Type ${inputTypes.join(", ")}`);
 }
-function generate$3(data) {
-  const namespace = data.nameSpace;
+function generate$3(data, nameSpace) {
   const constantMappings = data.constants.values.map((item) => {
-    const { key, value, type } = item;
+    const { key: originalKey, value, type } = item;
+    const key = changeCase__namespace.constantCase(originalKey);
     const parsedType = typeParser(type);
     const supportedType = firstIntersectionType(
       parsedType,
@@ -77,17 +79,17 @@ function generate$3(data) {
     }
     return `${key}: ${value} as ${supportedType}`;
   });
-  const code = `export const ${namespace} = {
+  const code = `export const ${nameSpace} = {
   ${constantMappings.join(",\n  ")},
 } as const;
 `;
   return code;
 }
 const supportedTypes$2 = ["string", "number", "boolean"];
-function generate$2(data) {
-  const namespace = data.nameSpace;
+function generate$2(data, nameSpace) {
   const constantMappings = data.constants.values.map((item) => {
-    const { key, value, type } = item;
+    const { key: originalKey, value, type } = item;
+    const key = changeCase__namespace.constantCase(originalKey);
     const parsedType = typeParser(type);
     const supportedType = firstIntersectionType(
       parsedType,
@@ -98,7 +100,7 @@ function generate$2(data) {
     }
     return `${key} = ${value}`;
   });
-  const code = `module ${namespace}
+  const code = `module ${nameSpace}
   ${constantMappings.join("\n  ")}
 end
 `;
@@ -107,7 +109,8 @@ end
 const supportedTypes$1 = ["string", "number", "boolean"];
 function generate$1(data) {
   const constantMappings = data.constants.values.map((item) => {
-    const { key, value, type } = item;
+    const { key: originalKey, value, type } = item;
+    const key = changeCase__namespace.constantCase(originalKey);
     const parsedType = typeParser(type);
     const supportedType = firstIntersectionType(
       parsedType,
@@ -145,9 +148,10 @@ const supportedTypes = [
   "byte",
   "rune"
 ];
-function generate(data) {
+function generate(data, nameSpace) {
   const constantMappings = data.constants.values.map((item) => {
-    const { key, value, type } = item;
+    const { key: originalKey, value, type } = item;
+    const key = changeCase__namespace.pascalCase(originalKey);
     const parsedType = typeParser(type);
     const supportedType = firstIntersectionType(
       parsedType,
@@ -161,11 +165,11 @@ function generate(data) {
     }
     return `${key} ${supportedType} = ${value}`;
   });
-  const code = `package ${data.nameSpace}
+  const code = `package ${nameSpace}
 const (
   ${constantMappings.join("\n  ")}
 )
-  `;
+`;
   return code;
 }
 function outputToFile(filePath, content) {
@@ -184,11 +188,14 @@ program.command("generate <name>").description("Generate shared constants").acti
     const checkedFormat = checkFormat(yaml2);
     checkedFormat.target.forEach((target) => {
       if (target.language === "typescript") {
-        const typescriptCode = generate$3(checkedFormat);
+        const typescriptCode = generate$3(
+          checkedFormat,
+          target.nameSpace
+        );
         outputToFile(target.output, typescriptCode);
       }
       if (target.language === "ruby") {
-        const rubyCode = generate$2(checkedFormat);
+        const rubyCode = generate$2(checkedFormat, target.nameSpace);
         outputToFile(target.output, rubyCode);
       }
       if (target.language === "python") {
@@ -196,7 +203,7 @@ program.command("generate <name>").description("Generate shared constants").acti
         outputToFile(target.output, pythonCode);
       }
       if (target.language === "go") {
-        const goCode = generate(checkedFormat);
+        const goCode = generate(checkedFormat, target.nameSpace);
         outputToFile(target.output, goCode);
       }
     });

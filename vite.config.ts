@@ -20,7 +20,7 @@ export default defineConfig(({ command }) => {
           },
         },
         ssr: {
-          noExternal: ['fs', 'js-yaml'],
+          noExternal: ['fs', 'js-yaml', 'change-case'],
         },
       },
     };
