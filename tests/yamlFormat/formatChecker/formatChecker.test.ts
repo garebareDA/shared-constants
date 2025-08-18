@@ -17,6 +17,7 @@ describe('Format Checker', () => {
         {
           language: 'typescript',
           output: './output/output.ts',
+          nameSpace: 'myNamespace',
         },
       ],
     };
@@ -43,6 +44,7 @@ describe('Format Checker', () => {
         {
           language: 'typescript',
           output: './output/output.ts',
+          nameSpace: 'myNamespace',
         },
       ],
       comment: 'This is a comment',
