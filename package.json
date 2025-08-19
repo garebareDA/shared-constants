@@ -29,7 +29,7 @@
     "vitest": "^1.0.0"
   },
   "bin": {
-    "shared-constants": "./command.js"
+    "shared-constants": "./bin/command.js"
   },
   "scripts": {
     "build": "vite build",
