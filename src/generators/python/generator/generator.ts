@@ -6,23 +6,29 @@ import { supportedTypes, SupportedType } from '../type/type';
 
 export function generate(data: YamlFormat) {
   const constantMappings = data.constants.values.map((item) => {
-    const { key: originalKey, value, type } = item;
-    const key = changeCase.constantCase(originalKey);
-    const parsedType = typeParser(type);
-    const supportedType = firstIntersectionType(
-      parsedType,
-      supportedTypes
-    ) as SupportedType;
+    try {
+      const { key: originalKey, value, type } = item;
+      const key = changeCase.constantCase(originalKey);
+      const parsedType = typeParser(type);
+      const supportedType = firstIntersectionType(
+        parsedType,
+        supportedTypes
+      ) as SupportedType;
 
-    if (supportedType === 'string') {
-      return `${key} = "${value}"`;
+      if (supportedType === 'string') {
+        return `${key} = "${value}"`;
+      }
+
+      if (supportedType === 'boolean') {
+        return `${key} = ${changeCase.capitalCase(value.toString())}`;
+      }
+
+      return `${key} = ${value}`;
+    } catch (error) {
+      throw new Error(
+        `Error processing item ${JSON.stringify(item)}:\n ${error}`
+      );
     }
-
-    if (supportedType === 'boolean') {
-      return `${key} = ${changeCase.capitalCase(value.toString())}`;
-    }
-
-    return `${key} = ${value}`;
   });
 
   const keyValue = data.constants.values.map((item) => {
