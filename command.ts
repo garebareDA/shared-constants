@@ -18,7 +18,7 @@ program
   .version('1.0.0-alpha.1');
 
 program
-  .command('generate <name>')
+  .command('generate <yaml-file>')
   .description('Generate shared constants')
   .action((name: string) => {
     console.log('Generating shared constants...');
