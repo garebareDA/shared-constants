@@ -1,11 +1,14 @@
 {
   "name": "shared-constants",
-  "version": "1.0.0",
+  "version": "1.0.0-alpha.1",
   "description": "A command-line tool that converts constants from JSON to supported languages.",
   "license": "ISC",
   "author": "",
   "type": "commonjs",
   "main": "index.js",
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@types/js-yaml": "^4.0.9",
     "change-case": "4.1.2",

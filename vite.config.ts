@@ -7,7 +7,7 @@ export default defineConfig(({ command }) => {
         target: 'node18',
         outDir: './',
         lib: {
-          entry: './bin/command.ts',
+          entry: './command.ts',
           name: 'shared-constants',
           fileName: 'command',
           formats: ['cjs'],
@@ -15,7 +15,7 @@ export default defineConfig(({ command }) => {
         rollupOptions: {
           external: ['commander'],
           output: {
-            entryFileNames: 'command.js',
+            entryFileNames: 'bin/command.js',
             banner: '#!/usr/bin/env node',
           },
         },

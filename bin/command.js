@@ -35,17 +35,97 @@ function parseYaml(fileName) {
   }
 }
 function checkFormat(data) {
-  const isValid = checkRootFormat(data);
-  if (!isValid)
+  try {
+    checkRootFormat(data);
+    return data;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
     throw new Error("Invalid YAML format");
-  return data;
+  }
 }
 function checkRootFormat(data) {
-  return typeof data === "object" && data !== null && typeof data.format === "string" && data.format === "shared-constants" && typeof data.constants === "object" && data.constants !== null && Array.isArray(data.constants.values) && data.constants.values.length > 0 && data.constants.values.every(
-    (item) => typeof item === "object" && item !== null && typeof item.key === "string" && (typeof item.value === "string" || typeof item.value === "number" || typeof item.value === "boolean") && typeof item.type === "string"
-  ) && Array.isArray(data.target) && data.target.length > 0 && data.target.every(
-    (item) => typeof item === "object" && item !== null && typeof item.language === "string" && (item.language === "typescript" || item.language === "ruby" || item.language === "python" || item.language === "go") && typeof item.output === "string" && typeof item.nameSpace === "string"
-  );
+  if (!isObject(data)) {
+    throw new Error("Data must be an object");
+  }
+  checkFormatField(data);
+  checkConstants(data);
+  checkTarget(data);
+}
+function isObject(data) {
+  return typeof data === "object" && data !== null;
+}
+function checkFormatField(data) {
+  if (typeof data.format !== "string") {
+    throw new Error("Format field must be a string");
+  }
+  if (data.format !== "shared-constants") {
+    throw new Error(`Format must be 'shared-constants', got: ${data.format}`);
+  }
+}
+function checkConstants(data) {
+  if (!isObject(data.constants)) {
+    throw new Error("Constants field must be an object");
+  }
+  if (!Array.isArray(data.constants.values)) {
+    throw new Error("Constants values must be an array");
+  }
+  if (data.constants.values.length === 0) {
+    throw new Error("Constants values array cannot be empty");
+  }
+  data.constants.values.forEach((item, index) => {
+    checkConstantItem(item, index);
+  });
+}
+function checkConstantItem(item, index) {
+  if (!isObject(item)) {
+    throw new Error(`Constant item at index ${index} must be an object`);
+  }
+  if (typeof item.key !== "string") {
+    throw new Error(`Constant key at index ${index} must be a string`);
+  }
+  if (typeof item.value !== "string" && typeof item.value !== "number" && typeof item.value !== "boolean") {
+    throw new Error(
+      `Constant value at index ${index} must be a string, number, or boolean`
+    );
+  }
+  if (typeof item.type !== "string") {
+    throw new Error(`Constant type at index ${index} must be a string`);
+  }
+}
+function checkTarget(data) {
+  if (!Array.isArray(data.target)) {
+    throw new Error("Target field must be an array");
+  }
+  if (data.target.length === 0) {
+    throw new Error("Target array cannot be empty");
+  }
+  data.target.forEach((item, index) => {
+    checkTargetItem(item, index);
+  });
+}
+function checkTargetItem(item, index) {
+  if (!isObject(item)) {
+    throw new Error(`Target item at index ${index} must be an object`);
+  }
+  if (typeof item.language !== "string") {
+    throw new Error(`Target language at index ${index} must be a string`);
+  }
+  const supportedLanguages = ["typescript", "ruby", "python", "go"];
+  if (!supportedLanguages.includes(
+    item.language
+  )) {
+    throw new Error(
+      `Target language at index ${index} must be one of: ${supportedLanguages.join(", ")}`
+    );
+  }
+  if (typeof item.output !== "string") {
+    throw new Error(`Target output at index ${index} must be a string`);
+  }
+  if (typeof item.nameSpace !== "string") {
+    throw new Error(`Target nameSpace at index ${index} must be a string`);
+  }
 }
 const supportedTypes$3 = [
   "string",
@@ -211,7 +291,7 @@ function outputToFile(filePath, content) {
   fs__namespace.writeFileSync(filePath, content);
 }
 const program = new commander.Command();
-program.name("shared-constants").description("Shared constants CLI").version("1.0.0");
+program.name("shared-constants").description("Shared constants CLI").version("1.0.0-alpha.1");
 program.command("generate <name>").description("Generate shared constants").action((name) => {
   console.log("Generating shared constants...");
   try {

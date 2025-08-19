@@ -2,20 +2,20 @@
 
 import { Command } from 'commander';
 
-import { parseYaml } from '../src/yamlFormat/parseYaml';
-import { checkFormat } from '../src/yamlFormat/formatChecker';
-import * as typescript from '../src/generators/typescript';
-import * as ruby from '../src/generators/ruby';
-import * as python from '../src/generators/python';
-import * as go from '../src/generators/go';
-import { outputToFile } from '../src/fileOutput';
+import { parseYaml } from './src/yamlFormat/parseYaml';
+import { checkFormat } from './src/yamlFormat/formatChecker';
+import * as typescript from './src/generators/typescript';
+import * as ruby from './src/generators/ruby';
+import * as python from './src/generators/python';
+import * as go from './src/generators/go';
+import { outputToFile } from './src/fileOutput';
 
 const program = new Command();
 
 program
   .name('shared-constants')
   .description('Shared constants CLI')
-  .version('1.0.0');
+  .version('1.0.0-alpha.1');
 
 program
   .command('generate <name>')
