@@ -1,6 +1,6 @@
 {
   "name": "@garebare/shared-constants",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.1-alpha.1",
   "description": "A command-line tool that converts constants from JSON to supported languages.",
   "license": "ISC",
   "author": "",
