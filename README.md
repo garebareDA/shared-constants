@@ -12,7 +12,7 @@
 ## インストール
 
 ```bash
-npm install -g shared-constants
+npm install -g @garebare/shared-constants
 ```
 
 ## 使用方法
